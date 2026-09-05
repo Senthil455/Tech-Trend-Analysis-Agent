@@ -1,7 +1,12 @@
+from pathlib import Path
+
 from fastapi import FastAPI, Query
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from api.react_agent import ReActAgent
 
 app = FastAPI(title="Tech Trend Analysis Agent", version="1.0.0")
+app.mount("/web", StaticFiles(directory=Path(__file__).parent.parent / "web"), name="web")
 
 # Initialize the ReAct agent
 agent = ReActAgent()
@@ -9,6 +14,11 @@ agent = ReActAgent()
 
 @app.get("/")
 def root():
+    return FileResponse(Path(__file__).parent.parent / "web" / "index.html")
+
+
+@app.get("/api-info")
+def api_info():
     return {
         "name": app.title,
         "version": app.version,

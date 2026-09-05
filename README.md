@@ -29,8 +29,11 @@ Tech-Trend-Analysis-Agent/
 ## Getting Started
 1. Install dependencies using `pip install -r requirements.txt`.
 2. Run the API with `uvicorn api.main:app --reload`.
-3. Submit a query with `curl -X POST "http://127.0.0.1:8000/analyze?query=AI%20agents"`.
-4. Open `http://127.0.0.1:8000/docs` for the interactive API.
+3. Open `http://127.0.0.1:8000/` to use the visual dashboard.
+4. The raw API is also available at `http://127.0.0.1:8000/docs`.
+
+The dashboard lets you enter a topic, run an analysis, and inspect the score,
+emerging trends, evidence, content opportunities, and ReAct trace.
 
 The default mode is deterministic and offline. Reports are persisted to
 `trend_memory.db` as JSON so historical scores survive between runs without
