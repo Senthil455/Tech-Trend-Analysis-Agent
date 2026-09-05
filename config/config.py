@@ -1,9 +1,6 @@
-try:
-    from pydantic_settings import BaseSettings
-except ImportError:
-    from pydantic import BaseModel as BaseSettings
+from pydantic import BaseModel
 
-class Config(BaseSettings):
+class Config(BaseModel):
     """
     Configuration settings for the Tech Trend Analysis Agent.
     """
@@ -20,5 +17,3 @@ class Config(BaseSettings):
     github_enabled: bool = True
     use_demo_data: bool = True
 
-    class Config:
-        env_file = ".env"
