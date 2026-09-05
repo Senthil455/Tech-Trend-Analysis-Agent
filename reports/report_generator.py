@@ -163,7 +163,7 @@ class ReportGenerator:
         if not isinstance(item, dict):
             return {"source": source, "mode": mode, "title": str(item), "metrics": {}}
         metrics = {key: item[key] for key in ("score", "num_comments", "stargazers_count", "forks_count", "engagement") if isinstance(item.get(key), (int, float))}
-        url = item.get("url") or item.get("html_url")
+        url = item.get("html_url") or item.get("url")
         permalink = item.get("permalink")
         if not url and isinstance(permalink, str):
             url = permalink if permalink.startswith("http") else f"https://www.reddit.com{permalink}" if permalink.startswith("/") else None

@@ -73,6 +73,18 @@ execution metadata, and downstream-agent context. A content agent can consume
 
 Run the tests with `python -m unittest discover -s tests`.
 
+For a readable terminal report, start the API and run:
+
+```powershell
+python -m api.cli "AI agents" --url http://127.0.0.1:8001
+```
+
+Use `--json` when you need the complete machine-readable response:
+
+```powershell
+python -m api.cli "AI agents" --url http://127.0.0.1:8001 --json
+```
+
 ## Requirements
 - Python 3.9+
 - FastAPI
