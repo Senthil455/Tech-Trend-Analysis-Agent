@@ -96,6 +96,22 @@ mark { margin-left: 5px; padding: 3px 5px; border-radius: 3px; font: 700 9px Ari
 .trace-list strong { font-size: 14px; font-weight: 500; text-transform: capitalize; }
 .trace-list small { margin-top: 3px; color: var(--muted); font: 11px Arial, sans-serif; }
 .muted { color: var(--muted); font-size: 14px; }
+.detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 35px; }
+.detail-panel h4 { margin: 22px 0 8px; color: var(--muted); font: 700 10px Arial, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+.detail-list { display: grid; gap: 8px; margin: 0; padding-left: 18px; color: var(--ink); font-size: 14px; line-height: 1.4; }
+.metrics-table { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
+.metrics-table div { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.metrics-table span { color: var(--muted); font: 11px Arial, sans-serif; text-transform: capitalize; }
+.metrics-table strong { font: 700 12px Arial, sans-serif; }
+.callout { margin-top: 18px; padding: 12px; background: #f0f5ec; color: var(--muted); font: 12px Arial, sans-serif; line-height: 1.45; }
+.platform-details { display: grid; gap: 10px; }
+.platform-detail { display: grid; gap: 4px; padding: 11px 0; border-top: 1px solid var(--line); }
+.platform-detail strong { font-size: 16px; font-weight: 500; text-transform: capitalize; }
+.platform-detail span, .platform-detail small, .development small { color: var(--muted); font: 11px Arial, sans-serif; }
+.development { display: grid; gap: 4px; padding: 11px 0; border-top: 1px solid var(--line); }
+.development strong { font-size: 14px; font-weight: 500; line-height: 1.3; }
+.outlook p { margin: 0; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; line-height: 1.4; }
+.downstream-summary { color: var(--muted); font-size: 15px; line-height: 1.45; }
 footer { display: flex; justify-content: space-between; gap: 20px; padding: 35px 0 45px; color: var(--muted); font: 10px Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
 footer a { color: var(--green); text-decoration: none; }
 @media (max-width: 760px) {
@@ -103,6 +119,7 @@ footer a { color: var(--green); text-decoration: none; }
   .hero { grid-template-columns: 1fr; gap: 35px; padding: 55px 0; }
   .hero h1 { font-size: 58px; }
   .dashboard-grid, .content-grid { grid-template-columns: 1fr; }
+  .detail-grid { grid-template-columns: 1fr; }
   .query-row { flex-direction: column; }
   .query-row button { justify-content: space-between; padding: 13px 16px; }
   .summary-card p { font-size: 22px; }

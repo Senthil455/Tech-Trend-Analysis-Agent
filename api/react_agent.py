@@ -1,10 +1,12 @@
 import os
+import json
 from datetime import date
 
 from config.config import Config
 from memory.long_term_memory import LongTermMemory
 from memory.short_term_memory import ShortTermMemory
 from reports.report_generator import ReportGenerator
+from reports.schemas import TrendIntelligence
 from tools.github_tool import GitHubTool
 from tools.news_tool import NewsTool
 from tools.reddit_tool import RedditTool
@@ -138,17 +140,54 @@ class ReActAgent:
             evidence,
             histories,
             minimum_sources=self.config.minimum_sources,
+            lookback_days=self.config.lookback_days,
+            tools_used=[name for name, _ in actions[: self.config.max_iterations]],
+            iterations=len(actions[: self.config.max_iterations]),
+            generation_mode="deterministic",
         )
-        report["react_trace"] = [
-            {"step": "reason", "decision": "Collect cross-platform signals"},
-            *tool_trace,
-            {"step": "observe", "sources": source_count},
-            {"step": "reason", "decision": "Score and compare with long-term memory"},
-        ]
-        report["runtime"] = {
-            "demo_mode": self.config.use_demo_data,
-            "live_data_enabled": os.getenv("TREND_LIVE_DATA") == "1",
-            "llm_planner_enabled": self.llm is not None,
-            "live_sources": source_count,
+        if self.llm:
+            report = self._llm_interpret(report)
+        report["analysis_metadata"]["source_status"] = {
+            item["source"]: item.get("mode", "error") for item in evidence
         }
+        report["analysis_metadata"]["generation_mode"] = report["analysis_metadata"].get(
+            "generation_mode", "deterministic"
+        )
         return report
+
+    def _llm_interpret(self, deterministic_report):
+        """Let the LLM interpret verified facts, never replace their metrics."""
+        try:
+            response = self.llm.chat.completions.create(
+                model="gpt-4o-mini",
+                temperature=0.2,
+                response_format={"type": "json_object"},
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "Return only valid JSON matching the supplied trend intelligence schema. Interpret facts, but never invent metrics, sources, URLs, dates, entities, or historical values. Use null or empty arrays when unavailable.",
+                    },
+                    {
+                        "role": "user",
+                        "content": json.dumps({
+                            "schema": TrendIntelligence.model_json_schema(),
+                            "verified_analysis": deterministic_report,
+                        }),
+                    },
+                ],
+            )
+            candidate = TrendIntelligence.model_validate(json.loads(response.choices[0].message.content))
+            base = TrendIntelligence.model_validate(deterministic_report).model_dump(mode="json")
+            interpreted = candidate.model_dump(mode="json")
+            for field in (
+                "trend_overview", "why_trending", "key_drivers", "growth_analysis",
+                "key_entities", "related_topics", "emerging_subtopics", "audience_analysis",
+                "sentiment_analysis", "risks_and_uncertainties", "future_outlook",
+                "prediction", "content_opportunities", "recommended_content_angles",
+                "downstream_agent_context",
+            ):
+                base[field] = interpreted[field]
+            base["analysis_metadata"]["generation_mode"] = "llm_interpreted"
+            return base
+        except Exception:
+            return deterministic_report

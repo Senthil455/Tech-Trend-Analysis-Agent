@@ -19,6 +19,15 @@ const trendCount = document.querySelector('#trendCount');
 const opportunityList = document.querySelector('#opportunityList');
 const evidenceList = document.querySelector('#evidenceList');
 const traceList = document.querySelector('#traceList');
+const whyTrending = document.querySelector('#whyTrending');
+const keyDrivers = document.querySelector('#keyDrivers');
+const metricsTable = document.querySelector('#metricsTable');
+const growthAnalysis = document.querySelector('#growthAnalysis');
+const platformDetails = document.querySelector('#platformDetails');
+const developments = document.querySelector('#developments');
+const sentimentOutlook = document.querySelector('#sentimentOutlook');
+const downstreamSummary = document.querySelector('#downstreamSummary');
+const mustNotClaim = document.querySelector('#mustNotClaim');
 
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
@@ -35,34 +44,45 @@ function setLoading(loading) {
   }
 }
 
-function renderReport(report) {
-  const leader = report.top_trends?.[0] || {};
-  const scoreValue = Number(leader.score || 0);
+function renderReport(payload) {
+  const report = payload.analysis || payload;
+  const overview = report.trend_overview || {};
+  const metrics = report.trend_metrics || {};
+  const scoreValue = Number(metrics.overall_score || overview.trend_score || 0);
   score.textContent = scoreValue.toFixed(1);
   scoreBar.style.width = `${Math.min(100, scoreValue)}%`;
-  classification.textContent = leader.classification || 'Watch';
-  classification.className = `badge ${String(leader.classification || 'watch').toLowerCase()}`;
-  sourceCount.textContent = `${leader.source_count || 0} sources`;
-  signalText.textContent = leader.evidence_sufficient ? 'Cross-platform signal detected' : 'More sources needed for confidence';
-  summary.textContent = report.executive_summary || 'No summary available.';
-  reportTitle.textContent = report.query || 'Trend report';
-  reportDate.textContent = report.report_date ? `· ${report.report_date}` : '';
+  classification.textContent = overview.trend_status || 'Unavailable';
+  classification.className = `badge ${String(overview.trend_status || 'watch').toLowerCase()}`;
+  sourceCount.textContent = `${report.cross_platform_analysis?.platform_count || 0} live sources`;
+  signalText.textContent = report.cross_platform_analysis?.platform_count >= 3 ? 'Cross-platform signal detected' : 'More sources needed for confidence';
+  summary.textContent = overview.executive_summary || 'No summary available.';
+  reportTitle.textContent = overview.topic || report.request?.query || 'Trend report';
+  reportDate.textContent = report.request?.analysis_timestamp ? `· ${report.request.analysis_timestamp.slice(0, 10)}` : '';
 
-  const trends = report.emerging_trends || [];
-  trendCount.textContent = trends.length;
-  trendList.innerHTML = trends.length ? trends.map((trend, index) => `
-    <div class="trend-row"><span class="trend-rank">0${index + 1}</span><div><strong>${escapeHtml(trend.topic)}</strong><small>${escapeHtml(trend.classification)} · ${trend.source_count} sources</small></div><b>${Number(trend.score).toFixed(1)}</b></div>
-  `).join('') : '<p class="muted">No emerging trends met the configured threshold.</p>';
+  const trend = overview.topic ? [{ topic: overview.topic, score: scoreValue, classification: overview.trend_status, source_count: report.cross_platform_analysis?.platform_count || 0 }] : [];
+  trendCount.textContent = trend.length;
+  trendList.innerHTML = trend.length ? trend.map((item, index) => `
+    <div class="trend-row"><span class="trend-rank">0${index + 1}</span><div><strong>${escapeHtml(item.topic)}</strong><small>${escapeHtml(item.classification)} · ${item.source_count} live sources</small></div><b>${Number(item.score).toFixed(1)}</b></div>
+  `).join('') : '<p class="muted">No trend overview returned.</p>';
 
-  opportunityList.innerHTML = (report.content_opportunities || []).map((item) => `<li><span>↗</span>${escapeHtml(item)}</li>`).join('') || '<li class="muted">No opportunities returned.</li>';
+  opportunityList.innerHTML = (report.content_opportunities || []).map((item) => `<li><span>↗</span><strong>${escapeHtml(item.platform)} · ${escapeHtml(item.format)}</strong><br>${escapeHtml(item.angle)}<small>${escapeHtml(item.hook)}</small></li>`).join('') || '<li class="muted">No opportunities returned.</li>';
 
   evidenceList.innerHTML = (report.evidence || []).map((source) => `
-    <div class="evidence-row"><span class="source-icon">${escapeHtml(source.source.slice(0, 1).toUpperCase())}</span><div><strong>${escapeHtml(source.source)} <mark class="mode-${escapeHtml(source.mode || 'live')}">${escapeHtml(source.mode || 'live')}</mark></strong><small>${source.items.length} signal${source.items.length === 1 ? '' : 's'} collected${source.fallback_reason ? ` · ${escapeHtml(source.fallback_reason)}` : ''}</small>${(source.highlights || []).slice(0, 1).map((highlight) => `<p class="evidence-highlight">${escapeHtml(highlight)}</p>`).join('')}</div><span class="evidence-count">${source.items.length}</span></div>
+    <div class="evidence-row"><span class="source-icon">${escapeHtml(source.source.slice(0, 1).toUpperCase())}</span><div><strong>${escapeHtml(source.source)} <mark class="mode-${escapeHtml(source.mode || 'live')}">${escapeHtml(source.mode || 'live')}</mark></strong><small>${source.title} · ${escapeHtml(source.relevance || 'unavailable')}</small></div></div>
   `).join('') || '<p class="muted">No evidence returned.</p>';
 
-  traceList.innerHTML = (report.react_trace || []).map((step, index) => `
-    <li><span class="trace-index">${index + 1}</span><div><strong>${escapeHtml(step.step)}</strong><small>${escapeHtml(step.decision || step.tool || `${step.sources || 0} sources observed`)}</small></div></li>
-  `).join('');
+  traceList.innerHTML = (report.analysis_metadata?.tools_used || []).map((tool, index) => `<li><span class="trace-index">${index + 1}</span><div><strong>tool action</strong><small>${escapeHtml(tool)}</small></div></li>`).join('') || '<li class="muted">No tool actions recorded.</li>';
+
+  const list = (items) => items?.length ? items.map((item) => `<li>${escapeHtml(item)}</li>`).join('') : '<li class="muted">Unavailable from collected evidence.</li>';
+  whyTrending.innerHTML = list(report.why_trending);
+  keyDrivers.innerHTML = list(report.key_drivers);
+  metricsTable.innerHTML = Object.entries(metrics).map(([key, value]) => `<div><span>${escapeHtml(key.replaceAll('_', ' '))}</span><strong>${value === null || value === undefined ? 'unavailable' : escapeHtml(value)}</strong></div>`).join('');
+  growthAnalysis.innerHTML = `<strong>Growth: ${escapeHtml(report.growth_analysis?.direction || 'unavailable')}</strong><br>${escapeHtml(report.growth_analysis?.explanation || 'No growth interpretation available.')}`;
+  platformDetails.innerHTML = Object.entries(report.platform_analysis || {}).map(([name, item]) => `<div class="platform-detail"><strong>${escapeHtml(name)}</strong><span>${item.available ? 'available' : 'unavailable'} · ${item.mentions ?? item.repositories ?? 0} records</span><small>${escapeHtml(item.failure_reason || item.key_findings?.[0] || 'No additional finding')}</small></div>`).join('');
+  developments.innerHTML = (report.key_developments || []).slice(0, 6).map((item) => `<div class="development"><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.source)} · ${escapeHtml(item.date || 'date unavailable')}</small></div>`).join('') || '<p class="muted">No verified developments returned.</p>';
+  sentimentOutlook.innerHTML = `<p><strong>Sentiment:</strong> ${escapeHtml(report.sentiment_analysis?.overall || 'unavailable')}</p><p><strong>Short term:</strong> ${escapeHtml(report.future_outlook?.short_term || 'unavailable')}</p>`;
+  downstreamSummary.textContent = report.downstream_agent_context?.content_generation_summary || 'No downstream context available.';
+  mustNotClaim.innerHTML = list(report.downstream_agent_context?.must_not_claim);
 
   emptyState.hidden = true;
   results.hidden = false;

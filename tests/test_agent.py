@@ -7,6 +7,7 @@ from api.react_agent import ReActAgent
 from api.main import analyze_trends
 from config.config import Config
 from memory.long_term_memory import LongTermMemory
+from reports.schemas import TrendIntelligence
 from trend_engine.trend_analysis import calculate_observed_factors, calculate_trend_score, classify_score
 
 
@@ -25,16 +26,18 @@ class AgentTests(unittest.TestCase):
             )
             report = agent.run("AI agents")
 
-        self.assertEqual(report["query"], "AI agents")
-        self.assertEqual(report["top_trends"][0]["source_count"], 0)
+        self.assertEqual(report["request"]["query"], "AI agents")
+        self.assertEqual(report["trend_overview"]["trend_score"], report["trend_metrics"]["overall_score"])
+        self.assertFalse(report["cross_platform_analysis"]["platforms"])
         self.assertTrue(all(item["mode"] == "demo" for item in report["evidence"]))
-        downstream = report["downstream_input"]
+        downstream = report["downstream_agent_context"]
         json.dumps(downstream)
-        self.assertEqual(downstream["contract"], "tech-trend-analysis/v1")
-        self.assertIn("confidence", downstream)
-        self.assertIn("guardrails", downstream)
-        self.assertGreaterEqual(len(report["react_trace"]), 5)
-        self.assertTrue(report["report_date"])
+        self.assertIn("key_facts", downstream)
+        self.assertIn("must_not_claim", downstream)
+        self.assertTrue(report["request"]["analysis_timestamp"])
+        validated = TrendIntelligence.model_validate(report)
+        json.dumps(validated.model_dump(mode="json"))
+        self.assertIn("news", validated.platform_analysis.model_dump())
 
     def test_score_validates_factors_and_classifies(self):
         self.assertEqual(calculate_trend_score(100, 100, 100, 100, 100, 100, 100), 100)
@@ -57,8 +60,8 @@ class AgentTests(unittest.TestCase):
                 tools={"search_broken": FailingTool()},
             )
             report = agent.run("robotics")
-        self.assertEqual(report["evidence"][0]["items"], [])
-        self.assertEqual(report["evidence"][0]["error"], "temporary source failure")
+        self.assertEqual(report["analysis_metadata"]["source_status"]["broken"], "error")
+        self.assertTrue(report["risks_and_uncertainties"])
 
     def test_whitespace_query_is_rejected(self):
         with self.assertRaises(Exception) as context:

@@ -63,11 +63,13 @@ opportunities. Missing live data falls back to clearly marked demo fixtures;
 the local JSON memory is intended for development, not multi-process
 production deployment.
 
-The response includes `downstream_input`, a versioned payload for other agents:
-`contract`, `topic`, `executive_summary`, trend factors, confidence,
-normalized source signals, recommendations, limitations, and generation
-guardrails. A content agent can consume `response["downstream_input"]` directly
-without scraping dashboard presentation fields.
+The API returns `{ "success": true, "analysis": ... }`. The `analysis` object
+is validated by the Pydantic models in `reports/schemas.py` and contains the
+request, trend overview, deterministic metrics, growth analysis, platform
+breakdown, evidence, history comparison, outlook, content opportunities,
+execution metadata, and downstream-agent context. A content agent can consume
+`response["analysis"]["downstream_agent_context"]` together with the complete
+`response["analysis"]` object without scraping dashboard presentation fields.
 
 Run the tests with `python -m unittest discover -s tests`.
 

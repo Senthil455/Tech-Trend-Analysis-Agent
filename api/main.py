@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from api.react_agent import ReActAgent
+from reports.schemas import AnalyzeResponse, TrendIntelligence
 
 app = FastAPI(title="Tech Trend Analysis Agent", version="1.0.0")
 app.mount("/web", StaticFiles(directory=Path(__file__).parent.parent / "web"), name="web")
@@ -46,4 +47,8 @@ def analyze_trends(query: str = Query(..., min_length=1)):
     if not query.strip():
         raise HTTPException(status_code=422, detail="Query must contain non-whitespace characters.")
     result = agent.run(query)
-    return result
+    response = AnalyzeResponse(
+        success=True,
+        analysis=TrendIntelligence.model_validate(result),
+    )
+    return response.model_dump(mode="json")
