@@ -7,6 +7,11 @@ from tools.news_tool import NewsTool
 from tools.reddit_tool import RedditTool
 from trend_engine.trend_analysis import calculate_trend_score, classify_score
 
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None
+
 class ReActAgent:
     """
     A ReAct-based agent that reasons and acts iteratively.
@@ -17,6 +22,7 @@ class ReActAgent:
         self.short_term = ShortTermMemory()
         self.report_generator = ReportGenerator()
         self.tools = {"search_news": NewsTool(), "search_reddit": RedditTool(), "search_github": GitHubTool()}
+        self.llm = OpenAI(api_key=self.config.openai_api_key) if OpenAI and self.config.openai_api_key else None
 
     def reason(self, user_query):
         """
@@ -29,7 +35,25 @@ class ReActAgent:
             "search_github": self.config.github_enabled,
         }
         actions = [(name, {"query": topic, "limit": 5}) for name in self.tools if enabled[name]]
+        if self.llm:
+            actions = self._llm_actions(topic, actions)
         return topic, actions
+
+    def _llm_actions(self, topic, fallback):
+        tool_descriptions = ", ".join(self.tools)
+        response = self.llm.chat.completions.create(
+            model="gpt-4o-mini",
+            temperature=0,
+            response_format={"type": "json_object"},
+            messages=[
+                {"role": "system", "content": "Choose source tools for trend research. Return JSON: {\"tools\":[\"search_news\"]}. Only use listed tools."},
+                {"role": "user", "content": f"Topic: {topic}. Available tools: {tool_descriptions}"},
+            ],
+        )
+        names = response.choices[0].message.content
+        import json
+        selected = json.loads(names).get("tools", [])
+        return [(name, {"query": topic, "limit": 5}) for name in selected if name in self.tools]
 
     def act(self, tool_name, tool_args):
         """

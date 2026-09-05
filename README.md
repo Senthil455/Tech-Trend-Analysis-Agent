@@ -35,7 +35,8 @@ Tech-Trend-Analysis-Agent/
 The default mode is deterministic and offline. Reports are persisted to
 `trend_memory.db` as JSON so historical scores survive between runs without
 requiring PostgreSQL. Set `TREND_LIVE_DATA=1` to query Reddit and GitHub, and
-set `NEWS_API_KEY` to enable NewsAPI.
+set `NEWS_API_KEY` to enable NewsAPI. Set `OPENAI_API_KEY` to let the LLM
+choose the source tools; without it, the deterministic planner is used.
 
 Each request runs a ReAct trace across enabled source tools, calculates a
 deterministic score, compares long-term memory, persists the result, and
@@ -45,10 +46,8 @@ Run the tests with `python -m unittest discover -s tests`.
 
 ## Requirements
 - Python 3.9+
-- PostgreSQL with pgvector extension
 - FastAPI
-- OpenAI GPT or similar LLM
-- Pydantic
+- Pydantic and pydantic-settings
 
 ## Development Phases
 1. Project Foundation
