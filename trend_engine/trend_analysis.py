@@ -14,6 +14,9 @@ def calculate_trend_score(volume, growth, engagement, cross_platform, recency, a
     Returns:
         float: The calculated trend score.
     """
+    values = [volume, growth, engagement, cross_platform, recency, authority, novelty]
+    if any(value < 0 or value > 100 for value in values):
+        raise ValueError("Trend factors must be between 0 and 100")
     score = (
         volume * 0.25 +
         growth * 0.20 +
@@ -24,6 +27,16 @@ def calculate_trend_score(volume, growth, engagement, cross_platform, recency, a
         novelty * 0.05
     )
     return round(score, 2)
+
+
+def classify_score(score):
+    if score >= 85:
+        return "Explosive"
+    if score >= 70:
+        return "Emerging"
+    if score >= 60:
+        return "Promising"
+    return "Watch"
 
 def detect_emerging_trends(trend_scores, threshold):
     """

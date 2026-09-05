@@ -1,56 +1,33 @@
-import psycopg2
-from psycopg2.extras import Json
+import json
+import os
 
 class LongTermMemory:
     """
     Manages the long-term memory for storing historical trends and reports.
     """
-    def __init__(self, db_url):
-        self.db_url = db_url
-        self.connection = psycopg2.connect(self.db_url)
-        self._initialize_tables()
+    def __init__(self, db_url="sqlite:///trend_memory.db"):
+        self.path = db_url.removeprefix("sqlite:///") if db_url.startswith("sqlite:///") else "trend_memory.json"
+        self.records = self._load()
 
-    def _initialize_tables(self):
-        """Create necessary tables if they do not exist."""
-        with self.connection.cursor() as cursor:
-            cursor.execute(
-                """
-                CREATE TABLE IF NOT EXISTS trend_history (
-                    id SERIAL PRIMARY KEY,
-                    topic TEXT NOT NULL,
-                    date DATE NOT NULL,
-                    score NUMERIC NOT NULL,
-                    data JSONB
-                );
-                """
-            )
-            self.connection.commit()
+    def _load(self):
+        if not os.path.exists(self.path):
+            return []
+        try:
+            with open(self.path, "r", encoding="utf-8") as file:
+                return json.load(file)
+        except (OSError, json.JSONDecodeError):
+            return []
 
     def store_trend(self, topic, date, score, data):
         """Store a trend in the database."""
-        with self.connection.cursor() as cursor:
-            cursor.execute(
-                """
-                INSERT INTO trend_history (topic, date, score, data)
-                VALUES (%s, %s, %s, %s);
-                """,
-                (topic, date, score, Json(data))
-            )
-            self.connection.commit()
+        self.records.append({"topic": topic, "date": str(date), "score": score, "data": data})
+        with open(self.path, "w", encoding="utf-8") as file:
+            json.dump(self.records, file, indent=2)
 
     def get_trend_history(self, topic):
         """Retrieve historical data for a specific topic."""
-        with self.connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT date, score, data FROM trend_history
-                WHERE topic = %s
-                ORDER BY date ASC;
-                """,
-                (topic,)
-            )
-            return cursor.fetchall()
+        return [record for record in self.records if record["topic"].lower() == topic.lower()]
 
     def close(self):
         """Close the database connection."""
-        self.connection.close()
+        return None
