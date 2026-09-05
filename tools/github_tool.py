@@ -1,4 +1,5 @@
 from tools.tool_interface import Tool
+import os
 import requests
 
 
@@ -8,6 +9,8 @@ class GitHubTool(Tool):
 
     def execute(self, query: str, limit: int = 10):
         try:
+            if os.getenv("TREND_LIVE_DATA") != "1":
+                raise requests.RequestException("demo mode")
             response = requests.get(
                 "https://api.github.com/search/repositories",
                 params={"q": query, "sort": "stars", "order": "desc", "per_page": limit},

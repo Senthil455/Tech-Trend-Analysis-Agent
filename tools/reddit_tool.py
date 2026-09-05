@@ -1,4 +1,5 @@
 from tools.tool_interface import Tool
+import os
 import requests
 
 class RedditTool(Tool):
@@ -17,14 +18,18 @@ class RedditTool(Tool):
             dict: A dictionary containing the search query and results.
         """
         # Example placeholder for API call (replace with actual Reddit API logic)
-        api_url = f"https://www.reddit.com/search.json?q={query}&limit={limit}"
+        api_url = "https://www.reddit.com/search.json"
         headers = {"User-Agent": "TechTrendAnalyzer/0.1"}
-
-        response = requests.get(api_url, headers=headers)
-        if response.status_code == 200:
-            results = response.json().get("data", {}).get("children", [])
-        else:
-            results = []
+        results = []
+        if os.getenv("TREND_LIVE_DATA") == "1":
+            try:
+                response = requests.get(api_url, params={"q": query, "limit": limit}, headers=headers, timeout=10)
+                response.raise_for_status()
+                results = response.json().get("data", {}).get("children", [])
+            except requests.RequestException:
+                results = []
+        if not results:
+            results = [{"title": f"Practitioners debate {query}", "source": "Demo Reddit"}][:limit]
 
         return {
             "query": query,
