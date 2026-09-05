@@ -25,7 +25,7 @@ class GitHubTool(Tool):
             )
             response.raise_for_status()
             results = response.json().get("items", [])
-        except requests.RequestException:
+        except (requests.RequestException, ValueError):
             results = []
         if not results:
             results = [{"name": f"{query}-framework", "description": "Demo developer activity signal"}]

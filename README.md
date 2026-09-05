@@ -55,9 +55,12 @@ requiring PostgreSQL. Set `TREND_LIVE_DATA=1` to query Reddit and GitHub, and
 set `NEWS_API_KEY` to enable NewsAPI. Set `OPENAI_API_KEY` to let the LLM
 choose the source tools; without it, the deterministic planner is used.
 
-Each request runs a ReAct trace across enabled source tools, calculates a
-deterministic score, compares long-term memory, persists the result, and
-returns structured evidence, predictions, and content opportunities.
+Each request runs a ReAct trace across enabled source tools, derives a
+deterministic score from returned evidence, compares long-term memory, persists
+the result, and returns structured evidence, predictions, and content
+opportunities. Missing live data falls back to clearly marked demo fixtures;
+the local JSON memory is intended for development, not multi-process
+production deployment.
 
 Run the tests with `python -m unittest discover -s tests`.
 

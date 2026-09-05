@@ -32,7 +32,7 @@ class NewsTool(Tool):
                 )
                 response.raise_for_status()
                 results = response.json().get("articles", [])
-            except requests.RequestException:
+            except (requests.RequestException, ValueError):
                 results = []
         if not results:
             results = [{"title": f"{query}: enterprise adoption accelerates", "source": "Demo News"}][:limit]

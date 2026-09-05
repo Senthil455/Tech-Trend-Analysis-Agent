@@ -29,7 +29,7 @@ class RedditTool(Tool):
                 response = requests.get(api_url, params={"q": query, "limit": limit}, headers=headers, timeout=10)
                 response.raise_for_status()
                 results = response.json().get("data", {}).get("children", [])
-            except requests.RequestException:
+            except (requests.RequestException, ValueError):
                 results = []
         if not results:
             results = [{"title": f"Practitioners debate {query}", "source": "Demo Reddit"}][:limit]

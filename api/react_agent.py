@@ -28,7 +28,7 @@ class ReActAgent:
         }
         self.llm = (
             OpenAI(api_key=self.config.openai_api_key, timeout=10, max_retries=0)
-            if OpenAI and self.config.openai_api_key
+            if OpenAI and self.config.openai_api_key and not self.config.use_demo_data
             else None
         )
 
@@ -89,7 +89,8 @@ class ReActAgent:
         for tool_name, tool_args in actions[: self.config.max_iterations]:
             try:
                 observation = self.act(tool_name, tool_args)
-                items = observation.get("results", [])
+                raw_items = observation.get("results", [])
+                items = raw_items if isinstance(raw_items, list) else [raw_items]
                 evidence.append({"source": tool_name.removeprefix("search_"), "items": items})
                 tool_trace.append({"step": "act", "tool": tool_name, "items": len(items)})
             except Exception as error:
