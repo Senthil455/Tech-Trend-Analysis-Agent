@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -27,6 +28,11 @@ class AgentTests(unittest.TestCase):
         self.assertEqual(report["query"], "AI agents")
         self.assertEqual(report["top_trends"][0]["source_count"], 0)
         self.assertTrue(all(item["mode"] == "demo" for item in report["evidence"]))
+        downstream = report["downstream_input"]
+        json.dumps(downstream)
+        self.assertEqual(downstream["contract"], "tech-trend-analysis/v1")
+        self.assertIn("confidence", downstream)
+        self.assertIn("guardrails", downstream)
         self.assertGreaterEqual(len(report["react_trace"]), 5)
         self.assertTrue(report["report_date"])
 
