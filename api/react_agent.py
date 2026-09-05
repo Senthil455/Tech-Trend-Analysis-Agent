@@ -1,3 +1,6 @@
+import os
+from datetime import date
+
 from config.config import Config
 from memory.long_term_memory import LongTermMemory
 from memory.short_term_memory import ShortTermMemory
@@ -91,9 +94,16 @@ class ReActAgent:
                 observation = self.act(tool_name, tool_args)
                 raw_items = observation.get("results", [])
                 items = raw_items if isinstance(raw_items, list) else [raw_items]
+                highlights = []
+                for item in items[:3]:
+                    if isinstance(item, dict):
+                        highlight = item.get("title") or item.get("name") or item.get("description")
+                        if highlight:
+                            highlights.append(str(highlight))
                 evidence.append({
                     "source": tool_name.removeprefix("search_"),
                     "items": items,
+                    "highlights": highlights,
                     "mode": observation.get("mode", "live"),
                     "fallback_reason": observation.get("fallback_reason"),
                 })
@@ -109,7 +119,7 @@ class ReActAgent:
 
         previous_history = self.memory.get_trend_history(topic)
         previous_score = previous_history[-1]["score"] if previous_history else None
-        factors = calculate_observed_factors(evidence, previous_score, self.config.minimum_sources)
+        factors = calculate_observed_factors(evidence, previous_score, self.config.minimum_sources, topic)
         score = calculate_trend_score(**factors)
         source_count = sum(1 for item in evidence if item["items"] and item.get("mode") == "live")
         trend = {
@@ -121,7 +131,7 @@ class ReActAgent:
             "factors": factors,
         }
         histories = {topic: previous_history}
-        self.memory.store_trend(topic, __import__("datetime").date.today(), score, trend)
+        self.memory.store_trend(topic, date.today(), score, trend)
         report = self.report_generator.generate_report(
             topic,
             [trend],
@@ -135,4 +145,10 @@ class ReActAgent:
             {"step": "observe", "sources": source_count},
             {"step": "reason", "decision": "Score and compare with long-term memory"},
         ]
+        report["runtime"] = {
+            "demo_mode": self.config.use_demo_data,
+            "live_data_enabled": os.getenv("TREND_LIVE_DATA") == "1",
+            "llm_planner_enabled": self.llm is not None,
+            "live_sources": source_count,
+        }
         return report

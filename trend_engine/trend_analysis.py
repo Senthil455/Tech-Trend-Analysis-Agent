@@ -39,24 +39,58 @@ def classify_score(score, emerging_threshold=70, minimum_score=60):
     return "Watch"
 
 
-def calculate_observed_factors(evidence, previous_score=None, minimum_sources=3):
+def calculate_observed_factors(evidence, previous_score=None, minimum_sources=3, query=""):
     """Derive transparent 0-100 factors from the evidence returned by tools."""
     valid_sources = [item for item in evidence if item.get("items") and item.get("mode", "live") == "live"]
     items = [entry for source in valid_sources for entry in source["items"]]
     source_count = len(valid_sources)
     total_items = len(items)
-    metadata_items = sum(
-        1 for item in items if isinstance(item, dict) and any(key in item for key in ("score", "num_comments", "stargazers_count", "engagement"))
-    )
+    query_terms = {term for term in query.lower().split() if len(term) > 2}
+    engagement_values = []
+    relevance_values = []
+    recency_values = []
+    unique_text = set()
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        text = " ".join(str(item.get(key, "")) for key in ("title", "name", "description", "selftext"))
+        text_terms = set(text.lower().split())
+        if query_terms:
+            relevance_values.append(len(query_terms & text_terms) / len(query_terms) * 100)
+        unique_text.add(text.strip().lower())
+        metrics = []
+        for key in ("score", "num_comments", "stargazers_count", "forks_count", "engagement"):
+            try:
+                value = float(item.get(key, 0))
+            except (TypeError, ValueError):
+                value = 0
+            if value > 0:
+                metrics.append(min(100, 20 * (value ** 0.5)))
+        if metrics:
+            engagement_values.append(sum(metrics) / len(metrics))
+        for key in ("publishedAt", "created_at", "createdAt"):
+            raw_date = item.get(key)
+            if raw_date:
+                try:
+                    from datetime import datetime, timezone
+                    parsed = datetime.fromisoformat(str(raw_date).replace("Z", "+00:00"))
+                    age_days = max(0, (datetime.now(timezone.utc) - parsed).total_seconds() / 86400)
+                    recency_values.append(max(0, min(100, 100 - age_days * 4)))
+                except (TypeError, ValueError):
+                    pass
     growth = 50 if previous_score is None else max(0, min(100, 50 + (previous_score - 50) * 0.5))
+    engagement = sum(engagement_values) / len(engagement_values) if engagement_values else 35
+    relevance = sum(relevance_values) / len(relevance_values) if relevance_values else 50
+    recency = sum(recency_values) / len(recency_values) if recency_values else 45
+    diversity = len(unique_text) / max(1, total_items) * 100
     return {
-        "volume": min(100, total_items * 10),
+        "volume": min(100, total_items * 8 + diversity * 0.2),
         "growth": round(growth, 2),
-        "engagement": round(min(100, 50 + metadata_items / max(1, total_items) * 50), 2),
+        "engagement": round(min(100, engagement), 2),
         "cross_platform": round(min(100, source_count / max(1, minimum_sources) * 100), 2),
-        "recency": 50,
+        "recency": round(recency, 2),
         "authority": round(sum(75 if source["source"] in {"news", "github"} else 55 for source in valid_sources) / max(1, source_count), 2),
-        "novelty": 50,
+        "novelty": round(min(100, relevance * 0.5 + diversity * 0.5), 2),
     }
 
 def detect_emerging_trends(trend_scores, threshold):

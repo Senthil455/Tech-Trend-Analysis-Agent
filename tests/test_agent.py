@@ -39,7 +39,7 @@ class AgentTests(unittest.TestCase):
             {"source": "news", "items": [{"title": "a"}, {"title": "b"}]},
             {"source": "github", "items": [{"name": "repo", "stargazers_count": 10}]},
         ])
-        self.assertEqual(factors["volume"], 30)
+        self.assertEqual(factors["volume"], 44.0)
         self.assertEqual(factors["cross_platform"], 66.67)
         self.assertEqual(factors["authority"], 75)
 

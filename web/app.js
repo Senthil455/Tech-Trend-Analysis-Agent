@@ -57,7 +57,7 @@ function renderReport(report) {
   opportunityList.innerHTML = (report.content_opportunities || []).map((item) => `<li><span>↗</span>${escapeHtml(item)}</li>`).join('') || '<li class="muted">No opportunities returned.</li>';
 
   evidenceList.innerHTML = (report.evidence || []).map((source) => `
-    <div class="evidence-row"><span class="source-icon">${escapeHtml(source.source.slice(0, 1).toUpperCase())}</span><div><strong>${escapeHtml(source.source)} <mark class="mode-${escapeHtml(source.mode || 'live')}">${escapeHtml(source.mode || 'live')}</mark></strong><small>${source.items.length} signal${source.items.length === 1 ? '' : 's'} collected${source.fallback_reason ? ` · ${escapeHtml(source.fallback_reason)}` : ''}</small></div><span class="evidence-count">${source.items.length}</span></div>
+    <div class="evidence-row"><span class="source-icon">${escapeHtml(source.source.slice(0, 1).toUpperCase())}</span><div><strong>${escapeHtml(source.source)} <mark class="mode-${escapeHtml(source.mode || 'live')}">${escapeHtml(source.mode || 'live')}</mark></strong><small>${source.items.length} signal${source.items.length === 1 ? '' : 's'} collected${source.fallback_reason ? ` · ${escapeHtml(source.fallback_reason)}` : ''}</small>${(source.highlights || []).slice(0, 1).map((highlight) => `<p class="evidence-highlight">${escapeHtml(highlight)}</p>`).join('')}</div><span class="evidence-count">${source.items.length}</span></div>
   `).join('') || '<p class="muted">No evidence returned.</p>';
 
   traceList.innerHTML = (report.react_trace || []).map((step, index) => `
