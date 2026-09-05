@@ -11,6 +11,7 @@ const scoreBar = document.querySelector('#scoreBar');
 const classification = document.querySelector('#classification');
 const sourceCount = document.querySelector('#sourceCount');
 const summary = document.querySelector('#summary');
+const signalText = document.querySelector('#signalText');
 const reportTitle = document.querySelector('#reportTitle');
 const reportDate = document.querySelector('#reportDate');
 const trendList = document.querySelector('#trendList');
@@ -26,7 +27,12 @@ const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({
 function setLoading(loading) {
   button.disabled = loading;
   button.querySelector('span').textContent = loading ? 'Investigating...' : 'Run analysis';
-  note.textContent = loading ? 'The agent is collecting signals across enabled sources.' : 'Demo mode is ready. Results are generated locally.';
+  if (loading) {
+    note.classList.remove('error');
+    note.textContent = 'The agent is collecting signals across enabled sources.';
+  } else if (!note.classList.contains('error')) {
+    note.textContent = 'Demo mode is ready. Results are generated locally.';
+  }
 }
 
 function renderReport(report) {
@@ -37,6 +43,7 @@ function renderReport(report) {
   classification.textContent = leader.classification || 'Watch';
   classification.className = `badge ${String(leader.classification || 'watch').toLowerCase()}`;
   sourceCount.textContent = `${leader.source_count || 0} sources`;
+  signalText.textContent = leader.evidence_sufficient ? 'Cross-platform signal detected' : 'More sources needed for confidence';
   summary.textContent = report.executive_summary || 'No summary available.';
   reportTitle.textContent = report.query || 'Trend report';
   reportDate.textContent = report.report_date ? `· ${report.report_date}` : '';

@@ -7,9 +7,12 @@ class GitHubTool(Tool):
     name = "search_github"
     description = "Search GitHub repositories and return developer interest signals."
 
+    def __init__(self, use_demo_data=True):
+        self.use_demo_data = use_demo_data
+
     def execute(self, query: str, limit: int = 10):
         try:
-            if os.getenv("TREND_LIVE_DATA") != "1":
+            if self.use_demo_data or os.getenv("TREND_LIVE_DATA") != "1":
                 raise requests.RequestException("demo mode")
             response = requests.get(
                 "https://api.github.com/search/repositories",

@@ -5,6 +5,7 @@ psycopg2-binary
 pgvector
 pydantic
 pydantic-settings
+python-dotenv
 openai
 requests
 numpy

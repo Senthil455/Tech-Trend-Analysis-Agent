@@ -1,12 +1,15 @@
 import os
 
+from dotenv import load_dotenv
 from pydantic import BaseModel
+
+load_dotenv()
 
 class Config(BaseModel):
     """
     Configuration settings for the Tech Trend Analysis Agent.
     """
-    db_url: str = "sqlite:///trend_memory.db"
+    db_url: str = "trend_memory.json"
     openai_api_key: str = ""
     max_iterations: int = 8
     minimum_sources: int = 3
@@ -29,9 +32,17 @@ class Config(BaseModel):
             "emerging_threshold": "TREND_EMERGING_THRESHOLD",
             "growth_threshold": "TREND_GROWTH_THRESHOLD",
             "lookback_days": "TREND_LOOKBACK_DAYS",
+            "news_enabled": "TREND_NEWS_ENABLED",
+            "reddit_enabled": "TREND_REDDIT_ENABLED",
+            "github_enabled": "TREND_GITHUB_ENABLED",
+            "use_demo_data": "TREND_USE_DEMO_DATA",
         }
         for field, variable in environment_fields.items():
             if field not in values and os.getenv(variable):
-                values[field] = os.getenv(variable)
+                raw_value = os.getenv(variable)
+                if field in {"news_enabled", "reddit_enabled", "github_enabled", "use_demo_data"}:
+                    values[field] = raw_value.lower() in {"1", "true", "yes", "on"}
+                else:
+                    values[field] = raw_value
         super().__init__(**values)
 

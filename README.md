@@ -35,6 +35,19 @@ Tech-Trend-Analysis-Agent/
 The dashboard lets you enter a topic, run an analysis, and inspect the score,
 emerging trends, evidence, content opportunities, and ReAct trace.
 
+Copy `.env.example` to `.env`, then replace the placeholder values in the
+local `.env` file. Do not commit real keys to source control:
+
+```env
+OPENAI_API_KEY=your-openai-key
+NEWS_API_KEY=your-newsapi-key
+TREND_LIVE_DATA=1
+```
+
+Restart Uvicorn after changing `.env`. `OPENAI_API_KEY` enables the optional
+`gpt-4o-mini` tool planner, `NEWS_API_KEY` enables live NewsAPI results, and
+`TREND_LIVE_DATA=1` enables live Reddit and GitHub requests.
+
 The default mode is deterministic and offline. Reports are persisted to
 `trend_memory.db` as JSON so historical scores survive between runs without
 requiring PostgreSQL. Set `TREND_LIVE_DATA=1` to query Reddit and GitHub, and

@@ -17,6 +17,8 @@ dist/
 
 # Database files
 *.sqlite3
+*.db
+trend_memory.json
 
 # Environment variables
 .env

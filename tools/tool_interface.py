@@ -12,4 +12,4 @@ class Tool(ABC):
         """
         Execute the tool with the given arguments.
         """
-        pass
+        raise NotImplementedError

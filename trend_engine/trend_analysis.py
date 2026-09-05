@@ -29,14 +29,35 @@ def calculate_trend_score(volume, growth, engagement, cross_platform, recency, a
     return round(score, 2)
 
 
-def classify_score(score):
+def classify_score(score, emerging_threshold=70, minimum_score=60):
     if score >= 85:
         return "Explosive"
-    if score >= 70:
+    if score >= emerging_threshold:
         return "Emerging"
-    if score >= 60:
+    if score >= minimum_score:
         return "Promising"
     return "Watch"
+
+
+def calculate_observed_factors(evidence, previous_score=None):
+    """Derive transparent 0-100 factors from the evidence returned by tools."""
+    valid_sources = [item for item in evidence if item.get("items")]
+    items = [entry for source in valid_sources for entry in source["items"]]
+    source_count = len(valid_sources)
+    total_items = len(items)
+    metadata_items = sum(
+        1 for item in items if isinstance(item, dict) and any(key in item for key in ("score", "num_comments", "stargazers_count", "engagement"))
+    )
+    growth = 50 if previous_score is None else max(0, min(100, 50 + (previous_score - 50) * 0.5))
+    return {
+        "volume": min(100, total_items * 10),
+        "growth": round(growth, 2),
+        "engagement": round(min(100, 50 + metadata_items / max(1, total_items) * 50), 2),
+        "cross_platform": round(min(100, source_count / 3 * 100), 2),
+        "recency": 50,
+        "authority": round(sum(75 if source["source"] in {"news", "github"} else 55 for source in valid_sources) / max(1, source_count), 2),
+        "novelty": 50,
+    }
 
 def detect_emerging_trends(trend_scores, threshold):
     """

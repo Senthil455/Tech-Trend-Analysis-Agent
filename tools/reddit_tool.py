@@ -6,6 +6,9 @@ class RedditTool(Tool):
     name = "search_reddit"
     description = "Search Reddit for recent discussions about a given topic."
 
+    def __init__(self, use_demo_data=True):
+        self.use_demo_data = use_demo_data
+
     def execute(self, query: str, limit: int = 10):
         """
         Search Reddit for discussions using an external API.
@@ -21,7 +24,7 @@ class RedditTool(Tool):
         api_url = "https://www.reddit.com/search.json"
         headers = {"User-Agent": "TechTrendAnalyzer/0.1"}
         results = []
-        if os.getenv("TREND_LIVE_DATA") == "1":
+        if not self.use_demo_data and os.getenv("TREND_LIVE_DATA") == "1":
             try:
                 response = requests.get(api_url, params={"q": query, "limit": limit}, headers=headers, timeout=10)
                 response.raise_for_status()
