@@ -98,7 +98,7 @@ class ReActAgent:
 
         previous_history = self.memory.get_trend_history(topic)
         previous_score = previous_history[-1]["score"] if previous_history else None
-        factors = calculate_observed_factors(evidence, previous_score)
+        factors = calculate_observed_factors(evidence, previous_score, self.config.minimum_sources)
         score = calculate_trend_score(**factors)
         source_count = sum(1 for item in evidence if item["items"])
         trend = {

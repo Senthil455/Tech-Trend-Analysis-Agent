@@ -41,6 +41,7 @@ local `.env` file. Do not commit real keys to source control:
 ```env
 OPENAI_API_KEY=your-openai-key
 NEWS_API_KEY=your-newsapi-key
+GITHUB_TOKEN=your-github-token
 TREND_LIVE_DATA=1
 ```
 

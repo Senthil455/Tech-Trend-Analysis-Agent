@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from api.react_agent import ReActAgent
+from api.main import analyze_trends
 from config.config import Config
 from memory.long_term_memory import LongTermMemory
 from trend_engine.trend_analysis import calculate_observed_factors, calculate_trend_score, classify_score
@@ -51,6 +52,11 @@ class AgentTests(unittest.TestCase):
             report = agent.run("robotics")
         self.assertEqual(report["evidence"][0]["items"], [])
         self.assertEqual(report["evidence"][0]["error"], "temporary source failure")
+
+    def test_whitespace_query_is_rejected(self):
+        with self.assertRaises(Exception) as context:
+            analyze_trends("   ")
+        self.assertEqual(context.exception.status_code, 422)
 
 
 if __name__ == "__main__":

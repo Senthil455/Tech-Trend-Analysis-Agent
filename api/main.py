@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from api.react_agent import ReActAgent
@@ -43,5 +43,7 @@ def analyze_trends(query: str = Query(..., min_length=1)):
     Returns:
         dict: The agent's observations.
     """
+    if not query.strip():
+        raise HTTPException(status_code=422, detail="Query must contain non-whitespace characters.")
     result = agent.run(query)
     return result

@@ -18,7 +18,11 @@ class ReportGenerator:
             dict: Machine-readable trend report.
         """
         top_trends = sorted(trend_scores, key=lambda item: item["score"], reverse=True)
-        emerging = [trend for trend in top_trends if trend["classification"] in ("Explosive", "Emerging")]
+        emerging = [
+            trend for trend in top_trends
+            if trend["classification"] in ("Explosive", "Emerging")
+            and trend["source_count"] >= minimum_sources
+        ]
         return {
             "report_date": date.today().isoformat(),
             "query": query,

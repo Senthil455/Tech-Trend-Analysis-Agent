@@ -20,7 +20,7 @@ class Config(BaseModel):
     news_enabled: bool = True
     reddit_enabled: bool = True
     github_enabled: bool = True
-    use_demo_data: bool = True
+    use_demo_data: bool = False
 
     def __init__(self, **values):
         environment_fields = {

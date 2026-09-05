@@ -27,7 +27,7 @@ class NewsTool(Tool):
                 response = requests.get(
                     "https://newsapi.org/v2/everything",
                     params={"q": query, "pageSize": limit, "sortBy": "publishedAt"},
-                    headers={"Authorization": f"Bearer {api_key}"},
+                    headers={"X-Api-Key": api_key},
                     timeout=10,
                 )
                 response.raise_for_status()

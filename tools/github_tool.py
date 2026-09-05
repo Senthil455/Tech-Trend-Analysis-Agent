@@ -17,7 +17,10 @@ class GitHubTool(Tool):
             response = requests.get(
                 "https://api.github.com/search/repositories",
                 params={"q": query, "sort": "stars", "order": "desc", "per_page": limit},
-                headers={"Accept": "application/vnd.github+json"},
+                headers={
+                    "Accept": "application/vnd.github+json",
+                    **({"Authorization": f"Bearer {os.getenv('GITHUB_TOKEN')}"} if os.getenv("GITHUB_TOKEN") else {}),
+                },
                 timeout=10,
             )
             response.raise_for_status()
