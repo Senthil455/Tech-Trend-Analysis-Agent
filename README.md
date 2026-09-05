@@ -27,10 +27,21 @@ Tech-Trend-Analysis-Agent/
 ```
 
 ## Getting Started
-1. Clone the repository.
-2. Install dependencies using `pip install -r requirements.txt`.
-3. Set up the database using the provided migration scripts.
-4. Run the FastAPI server using `uvicorn api.main:app --reload`.
+1. Install dependencies using `pip install -r requirements.txt`.
+2. Run the API with `uvicorn api.main:app --reload`.
+3. Submit a query with `curl -X POST "http://127.0.0.1:8000/analyze?query=AI%20agents"`.
+4. Open `http://127.0.0.1:8000/docs` for the interactive API.
+
+The default mode is deterministic and offline. Reports are persisted to
+`trend_memory.db` as JSON so historical scores survive between runs without
+requiring PostgreSQL. Set `TREND_LIVE_DATA=1` to query Reddit and GitHub, and
+set `NEWS_API_KEY` to enable NewsAPI.
+
+Each request runs a ReAct trace across enabled source tools, calculates a
+deterministic score, compares long-term memory, persists the result, and
+returns structured evidence, predictions, and content opportunities.
+
+Run the tests with `python -m unittest discover -s tests`.
 
 ## Requirements
 - Python 3.9+
