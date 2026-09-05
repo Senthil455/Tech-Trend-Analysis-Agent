@@ -6,6 +6,17 @@ app = FastAPI(title="Tech Trend Analysis Agent", version="1.0.0")
 # Initialize the ReAct agent
 agent = ReActAgent()
 
+
+@app.get("/")
+def root():
+    return {
+        "name": app.title,
+        "version": app.version,
+        "status": "ok",
+        "endpoints": {"health": "/health", "analyze": "/analyze", "docs": "/docs"},
+    }
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
