@@ -86,6 +86,9 @@ button { cursor: pointer; }
 .source-icon { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 50%; background: var(--mint); color: var(--green); font: 700 12px Arial, sans-serif; }
 .evidence-count { color: var(--green); font: 700 14px Arial, sans-serif; }
 .evidence-highlight { margin: 7px 0 0; color: var(--ink); font-size: 12px; line-height: 1.35; }
+.resource-link { display: inline-block; margin-top: 6px; color: var(--green); font: 700 10px Arial, sans-serif; letter-spacing: .04em; text-decoration: none; text-transform: uppercase; }
+.resource-link:hover { color: var(--orange); text-decoration: underline; }
+.no-link { display: block; margin-top: 6px; color: var(--muted); font: 10px Arial, sans-serif; }
 mark { margin-left: 5px; padding: 3px 5px; border-radius: 3px; font: 700 9px Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
 .mode-live { background: var(--mint); color: var(--green); }
 .mode-demo, .mode-error { background: #f8e4d8; color: #b35b38; }

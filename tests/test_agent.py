@@ -8,6 +8,7 @@ from api.main import analyze_trends
 from config.config import Config
 from memory.long_term_memory import LongTermMemory
 from reports.schemas import TrendIntelligence
+from reports.report_generator import ReportGenerator
 from trend_engine.trend_analysis import calculate_observed_factors, calculate_trend_score, classify_score
 
 
@@ -67,6 +68,25 @@ class AgentTests(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             analyze_trends("   ")
         self.assertEqual(context.exception.status_code, 422)
+
+    def test_source_links_are_preserved_without_fabrication(self):
+        generator = ReportGenerator()
+        evidence = [
+            {
+                "source": "reddit",
+                "mode": "live",
+                "items": [{"title": "Discussion", "permalink": "/r/technology/comments/abc/discussion"}],
+            },
+            {"source": "github", "mode": "live", "items": [{"name": "repo", "html_url": "https://github.com/example/repo"}]},
+            {"source": "news", "mode": "demo", "items": [{"title": "Demo result"}]},
+        ]
+        report = generator.generate_report(
+            "technology", [{"topic": "technology", "score": 20, "classification": "Watch", "source_count": 2, "factors": {}}], evidence, {"technology": []}
+        )
+        urls = {item.source: item.url for item in TrendIntelligence.model_validate(report).evidence}
+        self.assertEqual(urls["reddit"], "https://www.reddit.com/r/technology/comments/abc/discussion")
+        self.assertEqual(urls["github"], "https://github.com/example/repo")
+        self.assertIsNone(urls["news"])
 
 
 if __name__ == "__main__":
