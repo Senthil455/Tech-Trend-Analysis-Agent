@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Signal Desk | Tech Trend Agent</title>
+  <link rel="stylesheet" href="/web/style.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Signal Desk home">
+        <span class="brand-mark">S</span>
+        <span><strong>Signal Desk</strong><small>Tech Trend Analysis Agent</small></span>
+      </a>
+      <div class="status"><span class="status-dot"></span><span id="apiStatus">Checking API</span></div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">AUTONOMOUS TREND INTELLIGENCE</p>
+        <h1>Find the signal<br><em>before it peaks.</em></h1>
+        <p class="lede">Ask the agent to investigate a technology topic across news, developer activity, and community conversation.</p>
+      </div>
+      <form id="analysisForm" class="query-panel">
+        <label for="query">What should we investigate?</label>
+        <div class="query-row">
+          <input id="query" name="query" value="AI agents" placeholder="e.g. local AI, robotics, WebAssembly" autocomplete="off" required>
+          <button id="analyzeButton" type="submit"><span>Run analysis</span><b>↗</b></button>
+        </div>
+        <div class="suggestions" aria-label="Suggested topics">
+          <button type="button" data-query="AI agents">AI agents</button>
+          <button type="button" data-query="open source AI">open source AI</button>
+          <button type="button" data-query="robotics">robotics</button>
+        </div>
+        <p class="form-note" id="formNote">Demo mode is ready. Results are generated locally.</p>
+      </form>
+    </section>
+
+    <section id="emptyState" class="empty-state">
+      <div class="empty-icon">⌁</div>
+      <h2>Your next signal starts here.</h2>
+      <p>Run an analysis to see cross-platform evidence, momentum, and the agent's reasoning trail.</p>
+    </section>
+
+    <section id="results" class="results" hidden>
+      <div class="section-heading">
+        <div><p class="eyebrow">ANALYSIS REPORT <span id="reportDate"></span></p><h2 id="reportTitle">Trend report</h2></div>
+        <button id="newAnalysis" class="ghost-button" type="button">New analysis <span>+</span></button>
+      </div>
+
+      <div class="dashboard-grid">
+        <article class="score-card">
+          <div class="card-label">MOMENTUM SCORE <span class="info">i</span></div>
+          <div class="score-wrap"><strong id="score">--</strong><span>/100</span></div>
+          <div class="score-bar"><i id="scoreBar"></i></div>
+          <div class="score-meta"><span id="classification">Waiting</span><span id="sourceCount">0 sources</span></div>
+        </article>
+        <article class="summary-card">
+          <div class="card-label">EXECUTIVE READOUT</div>
+          <p id="summary">--</p>
+          <div class="signal-line"><span class="signal-dot"></span><span>Cross-platform signal detected</span></div>
+        </article>
+      </div>
+
+      <div class="content-grid">
+        <article class="panel trends-panel">
+          <div class="panel-heading"><div><p class="eyebrow">WHAT'S MOVING</p><h3>Emerging trends</h3></div><span class="count" id="trendCount">0</span></div>
+          <div id="trendList" class="trend-list"></div>
+        </article>
+        <article class="panel opportunities-panel">
+          <div class="panel-heading"><div><p class="eyebrow">NEXT MOVES</p><h3>Content opportunities</h3></div></div>
+          <ul id="opportunityList" class="opportunity-list"></ul>
+        </article>
+      </div>
+
+      <div class="content-grid lower-grid">
+        <article class="panel evidence-panel">
+          <div class="panel-heading"><div><p class="eyebrow">THE EVIDENCE</p><h3>Platform signals</h3></div></div>
+          <div id="evidenceList" class="evidence-list"></div>
+        </article>
+        <article class="panel trace-panel">
+          <div class="panel-heading"><div><p class="eyebrow">HOW IT REASONED</p><h3>ReAct trace</h3></div></div>
+          <ol id="traceList" class="trace-list"></ol>
+        </article>
+      </div>
+    </section>
+
+    <footer><span>Signal Desk</span><span>Local-first trend intelligence</span><a href="/docs">API docs ↗</a></footer>
+  </main>
+  <script src="/web/app.js"></script>
+</body>
+</html>
