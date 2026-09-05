@@ -91,17 +91,27 @@ class ReActAgent:
                 observation = self.act(tool_name, tool_args)
                 raw_items = observation.get("results", [])
                 items = raw_items if isinstance(raw_items, list) else [raw_items]
-                evidence.append({"source": tool_name.removeprefix("search_"), "items": items})
+                evidence.append({
+                    "source": tool_name.removeprefix("search_"),
+                    "items": items,
+                    "mode": observation.get("mode", "live"),
+                    "fallback_reason": observation.get("fallback_reason"),
+                })
                 tool_trace.append({"step": "act", "tool": tool_name, "items": len(items)})
             except Exception as error:
-                evidence.append({"source": tool_name.removeprefix("search_"), "items": [], "error": str(error)})
+                evidence.append({
+                    "source": tool_name.removeprefix("search_"),
+                    "items": [],
+                    "mode": "error",
+                    "error": str(error),
+                })
                 tool_trace.append({"step": "act", "tool": tool_name, "error": "tool failed"})
 
         previous_history = self.memory.get_trend_history(topic)
         previous_score = previous_history[-1]["score"] if previous_history else None
         factors = calculate_observed_factors(evidence, previous_score, self.config.minimum_sources)
         score = calculate_trend_score(**factors)
-        source_count = sum(1 for item in evidence if item["items"])
+        source_count = sum(1 for item in evidence if item["items"] and item.get("mode") == "live")
         trend = {
             "topic": topic,
             "score": score,

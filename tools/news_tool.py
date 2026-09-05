@@ -22,6 +22,8 @@ class NewsTool(Tool):
         """
         api_key = "" if self.use_demo_data else os.getenv("NEWS_API_KEY")
         results = []
+        mode = "demo"
+        fallback_reason = None
         if api_key:
             try:
                 response = requests.get(
@@ -32,12 +34,19 @@ class NewsTool(Tool):
                 )
                 response.raise_for_status()
                 results = response.json().get("articles", [])
+                mode = "live" if results else "demo"
+                if not results:
+                    fallback_reason = "NewsAPI returned no results"
             except (requests.RequestException, ValueError):
-                results = []
+                fallback_reason = "NewsAPI request failed"
+        elif not self.use_demo_data:
+            fallback_reason = "NEWS_API_KEY is not configured"
         if not results:
             results = [{"title": f"{query}: enterprise adoption accelerates", "source": "Demo News"}][:limit]
 
         return {
             "query": query,
-            "results": results
+            "results": results,
+            "mode": mode,
+            "fallback_reason": fallback_reason,
         }

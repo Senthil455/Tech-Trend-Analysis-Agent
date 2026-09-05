@@ -24,17 +24,29 @@ class RedditTool(Tool):
         api_url = "https://www.reddit.com/search.json"
         headers = {"User-Agent": "TechTrendAnalyzer/0.1"}
         results = []
+        mode = "demo"
+        fallback_reason = None
         if not self.use_demo_data and os.getenv("TREND_LIVE_DATA") == "1":
             try:
                 response = requests.get(api_url, params={"q": query, "limit": limit}, headers=headers, timeout=10)
                 response.raise_for_status()
-                results = response.json().get("data", {}).get("children", [])
+                children = response.json().get("data", {}).get("children", [])
+                results = [child.get("data", child) for child in children]
+                mode = "live" if results else "demo"
+                if not results:
+                    fallback_reason = "Reddit returned no results"
             except (requests.RequestException, ValueError):
-                results = []
+                fallback_reason = "Reddit request failed"
+        elif self.use_demo_data:
+            fallback_reason = "demo mode is enabled"
+        else:
+            fallback_reason = "TREND_LIVE_DATA is not enabled"
         if not results:
             results = [{"title": f"Practitioners debate {query}", "source": "Demo Reddit"}][:limit]
 
         return {
             "query": query,
-            "results": results
+            "results": results,
+            "mode": mode,
+            "fallback_reason": fallback_reason,
         }

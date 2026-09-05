@@ -85,6 +85,9 @@ button { cursor: pointer; }
 .opportunity-list li span { color: var(--orange); font-family: Arial, sans-serif; }
 .source-icon { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 50%; background: var(--mint); color: var(--green); font: 700 12px Arial, sans-serif; }
 .evidence-count { color: var(--green); font: 700 14px Arial, sans-serif; }
+mark { margin-left: 5px; padding: 3px 5px; border-radius: 3px; font: 700 9px Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.mode-live { background: var(--mint); color: var(--green); }
+.mode-demo, .mode-error { background: #f8e4d8; color: #b35b38; }
 .trace-list { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
 .trace-list li { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
 .trace-index { display: grid; place-items: center; flex: 0 0 21px; height: 21px; border-radius: 50%; background: var(--ink); color: white; font: 10px Arial, sans-serif; }

@@ -41,7 +41,7 @@ def classify_score(score, emerging_threshold=70, minimum_score=60):
 
 def calculate_observed_factors(evidence, previous_score=None, minimum_sources=3):
     """Derive transparent 0-100 factors from the evidence returned by tools."""
-    valid_sources = [item for item in evidence if item.get("items")]
+    valid_sources = [item for item in evidence if item.get("items") and item.get("mode", "live") == "live"]
     items = [entry for source in valid_sources for entry in source["items"]]
     source_count = len(valid_sources)
     total_items = len(items)

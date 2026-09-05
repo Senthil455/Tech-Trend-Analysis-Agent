@@ -25,7 +25,8 @@ class AgentTests(unittest.TestCase):
             report = agent.run("AI agents")
 
         self.assertEqual(report["query"], "AI agents")
-        self.assertEqual(report["top_trends"][0]["source_count"], 3)
+        self.assertEqual(report["top_trends"][0]["source_count"], 0)
+        self.assertTrue(all(item["mode"] == "demo" for item in report["evidence"]))
         self.assertGreaterEqual(len(report["react_trace"]), 5)
         self.assertTrue(report["report_date"])
 
