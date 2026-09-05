@@ -4,6 +4,7 @@ sqlalchemy
 psycopg2-binary
 pgvector
 pydantic
+pydantic-settings
 openai
 requests
 numpy

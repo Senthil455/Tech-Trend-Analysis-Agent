@@ -23,7 +23,13 @@ class ReActAgent:
         Reason about the user's query and decide on an action.
         """
         topic = user_query.strip() or "AI technology"
-        return topic, [(name, {"query": topic, "limit": 5}) for name in self.tools]
+        enabled = {
+            "search_news": self.config.news_enabled,
+            "search_reddit": self.config.reddit_enabled,
+            "search_github": self.config.github_enabled,
+        }
+        actions = [(name, {"query": topic, "limit": 5}) for name in self.tools if enabled[name]]
+        return topic, actions
 
     def act(self, tool_name, tool_args):
         """
