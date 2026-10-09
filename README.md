@@ -42,21 +42,18 @@ local `.env` file. Do not commit real keys to source control:
 OPENAI_API_KEY=your-openai-key
 NEWS_API_KEY=your-newsapi-key
 GITHUB_TOKEN=your-github-token
-REDDIT_CLIENT_ID=your-reddit-client-id
-REDDIT_CLIENT_SECRET=your-reddit-client-secret
-REDDIT_USER_AGENT=TechTrendAnalyzer/0.1 by u/your-reddit-username
 TREND_LIVE_DATA=1
 ```
 
 Restart Uvicorn after changing `.env`. `OPENAI_API_KEY` enables the optional
 `gpt-4o-mini` tool planner, `NEWS_API_KEY` enables live NewsAPI results, and
-`TREND_LIVE_DATA=1` enables live Reddit and GitHub requests.
-Reddit live requests use Reddit OAuth app-only access and require a Reddit application's client ID and secret. Set a descriptive `REDDIT_USER_AGENT` for the application.
+`TREND_LIVE_DATA=1` enables live Hacker News and GitHub requests.
+Hacker News searches use the public Algolia API and do not require an API key.
 
 The default planner is deterministic, with live sources enabled when their
 configuration is present and demo fallback when a source is unavailable.
 Reports are persisted to `trend_memory.json` as JSON for local development.
-Set `TREND_LIVE_DATA=1` to query Reddit and GitHub, and set `NEWS_API_KEY` to
+Set `TREND_LIVE_DATA=1` to query Hacker News and GitHub, and set `NEWS_API_KEY` to
 enable NewsAPI. Set `OPENAI_API_KEY` to let the LLM choose source tools;
 without it, the deterministic planner is used.
 

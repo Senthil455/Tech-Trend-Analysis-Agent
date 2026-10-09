@@ -38,7 +38,7 @@ class AgentTests(unittest.TestCase):
         self.assertTrue(report["request"]["analysis_timestamp"])
         validated = TrendIntelligence.model_validate(report)
         json.dumps(validated.model_dump(mode="json"))
-        self.assertIn("news", validated.platform_analysis.model_dump())
+        self.assertIn("hacker_news", validated.platform_analysis.model_dump())
 
     def test_score_validates_factors_and_classifies(self):
         self.assertEqual(calculate_trend_score(100, 100, 100, 100, 100, 100, 100), 100)
@@ -73,9 +73,9 @@ class AgentTests(unittest.TestCase):
         generator = ReportGenerator()
         evidence = [
             {
-                "source": "reddit",
+                "source": "hacker_news",
                 "mode": "live",
-                "items": [{"title": "Discussion", "permalink": "/r/technology/comments/abc/discussion"}],
+                "items": [{"title": "Discussion", "url": "https://news.ycombinator.com/item?id=abc"}],
             },
             {"source": "github", "mode": "live", "items": [{"name": "repo", "html_url": "https://github.com/example/repo"}]},
             {"source": "news", "mode": "demo", "items": [{"title": "Demo result"}]},
@@ -84,7 +84,7 @@ class AgentTests(unittest.TestCase):
             "technology", [{"topic": "technology", "score": 20, "classification": "Watch", "source_count": 2, "factors": {}}], evidence, {"technology": []}
         )
         urls = {item.source: item.url for item in TrendIntelligence.model_validate(report).evidence}
-        self.assertEqual(urls["reddit"], "https://www.reddit.com/r/technology/comments/abc/discussion")
+        self.assertEqual(urls["hacker_news"], "https://news.ycombinator.com/item?id=abc")
         self.assertEqual(urls["github"], "https://github.com/example/repo")
         self.assertIsNone(urls["news"])
 

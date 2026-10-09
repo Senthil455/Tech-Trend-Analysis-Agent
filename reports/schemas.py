@@ -56,6 +56,7 @@ class PlatformReport(StrictModel):
     available: bool
     mentions: Optional[int] = None
     engagement: Optional[float] = None
+    points: Optional[int] = None
     repositories: Optional[int] = None
     stars: Optional[int] = None
     forks: Optional[int] = None
@@ -67,7 +68,7 @@ class PlatformReport(StrictModel):
 
 class PlatformAnalysis(StrictModel):
     news: PlatformReport
-    reddit: PlatformReport
+    hacker_news: PlatformReport
     github: PlatformReport
 
 
