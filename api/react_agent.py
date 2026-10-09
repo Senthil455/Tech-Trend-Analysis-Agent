@@ -9,7 +9,7 @@ from reports.report_generator import ReportGenerator
 from reports.schemas import TrendIntelligence
 from tools.github_tool import GitHubTool
 from tools.news_tool import NewsTool
-from tools.reddit_tool import RedditTool
+from tools.hacker_news_tool import HackerNewsTool
 from trend_engine.trend_analysis import calculate_observed_factors, calculate_trend_score, classify_score
 
 try:
@@ -28,7 +28,7 @@ class ReActAgent:
         self.report_generator = ReportGenerator()
         self.tools = tools or {
             "search_news": NewsTool(self.config.use_demo_data),
-            "search_reddit": RedditTool(self.config.use_demo_data),
+            "search_hacker_news": HackerNewsTool(self.config.use_demo_data),
             "search_github": GitHubTool(self.config.use_demo_data),
         }
         self.llm = (
@@ -44,7 +44,7 @@ class ReActAgent:
         topic = user_query.strip() or "AI technology"
         enabled = {
             "search_news": self.config.news_enabled,
-            "search_reddit": self.config.reddit_enabled,
+            "search_hacker_news": self.config.hacker_news_enabled,
             "search_github": self.config.github_enabled,
         }
         actions = [(name, {"query": topic, "limit": 5}) for name in self.tools if enabled.get(name, True)]

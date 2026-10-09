@@ -47,12 +47,13 @@ TREND_LIVE_DATA=1
 
 Restart Uvicorn after changing `.env`. `OPENAI_API_KEY` enables the optional
 `gpt-4o-mini` tool planner, `NEWS_API_KEY` enables live NewsAPI results, and
-`TREND_LIVE_DATA=1` enables live Reddit and GitHub requests.
+`TREND_LIVE_DATA=1` enables live Hacker News and GitHub requests.
+Hacker News searches use the public Algolia API and do not require an API key.
 
 The default planner is deterministic, with live sources enabled when their
 configuration is present and demo fallback when a source is unavailable.
 Reports are persisted to `trend_memory.json` as JSON for local development.
-Set `TREND_LIVE_DATA=1` to query Reddit and GitHub, and set `NEWS_API_KEY` to
+Set `TREND_LIVE_DATA=1` to query Hacker News and GitHub, and set `NEWS_API_KEY` to
 enable NewsAPI. Set `OPENAI_API_KEY` to let the LLM choose source tools;
 without it, the deterministic planner is used.
 

@@ -162,23 +162,24 @@ class ReportGenerator:
     def _normalize_signal(self, source, mode, item):
         if not isinstance(item, dict):
             return {"source": source, "mode": mode, "title": str(item), "metrics": {}}
-        metrics = {key: item[key] for key in ("score", "num_comments", "stargazers_count", "forks_count", "engagement") if isinstance(item.get(key), (int, float))}
+        metrics = {key: item[key] for key in ("score", "points", "num_comments", "stargazers_count", "forks_count", "engagement") if isinstance(item.get(key), (int, float))}
         url = item.get("html_url") or item.get("url")
         permalink = item.get("permalink")
         if not url and isinstance(permalink, str):
-            url = permalink if permalink.startswith("http") else f"https://www.reddit.com{permalink}" if permalink.startswith("/") else None
+            url = permalink if permalink.startswith("http") else None
         return {"source": source, "mode": mode, "title": item.get("title") or item.get("name") or item.get("description") or "Untitled signal", "url": url, "date": item.get("publishedAt") or item.get("created_at") or item.get("createdAt"), "relevance": "medium", "summary": item.get("description") or item.get("title"), "metrics": metrics}
 
     def _platform_analysis(self, evidence, records):
         result = {}
-        for name in ("news", "reddit", "github"):
+        for name in ("news", "hacker_news", "github"):
             source_records = [record for record in records if record.source == name]
             source = next((item for item in evidence if item["source"] == name), {})
             metrics = [record.metrics for record in source_records]
             result[name] = PlatformReport(
                 available=source.get("mode") == "live" and bool(source_records),
                 mentions=len(source_records) if name != "github" else None,
-                engagement=sum(item.get("num_comments", 0) for item in metrics) if name == "reddit" and metrics else None,
+                engagement=sum(item.get("num_comments", 0) for item in metrics) if name == "hacker_news" and metrics else None,
+                points=sum(item.get("points", 0) for item in metrics) if name == "hacker_news" and metrics else None,
                 repositories=len(source_records) if name == "github" else None,
                 stars=sum(item.get("stargazers_count", 0) for item in metrics) if name == "github" and metrics else None,
                 forks=sum(item.get("forks_count", 0) for item in metrics) if name == "github" and metrics else None,
